@@ -19,7 +19,7 @@ const exercises = [
     {
         title: "Грибок",
         duration: 120,
-        sets: 3,
+        sets: 2,
         restBetweenSets: 60,
         description: "Прижимаем язык к нёбу, тренируя мышцы языка",
         instructions: [
@@ -51,7 +51,7 @@ const exercises = [
     {
         title: "Барабанщик",
         duration: 120,
-        sets: 3,
+        sets: 2,
         restBetweenSets: 30,
         description: "Отрабатываем быстрое произношение звука 'д'",
         instructions: [
@@ -67,6 +67,7 @@ const exercises = [
     {
         title: "Гармошка",
         duration: 180,
+        sets: 2,
         description: "Тренируем боковые мышцы языка",
         instructions: [
             "Сделайте 'грибок' (прижмите язык к нёбу)",
@@ -80,6 +81,7 @@ const exercises = [
     {
         title: "Мотор",
         duration: 300,
+        sets: 2,
         description: "Тренируем вибрацию языка для звука 'р'",
         instructions: [
             "Поднимите язык к верхним зубам",
@@ -99,7 +101,7 @@ const tongueTwisters = [
         title: "Простая на Р",
         text: "Рыбки в ручейке резвятся",
         difficulty: "легкая",
-        duration: 120,
+        duration: 20,
         tips: [
             "Начните очень медленно",
             "Следите за положением языка при звуке 'Р'",
@@ -110,7 +112,7 @@ const tongueTwisters = [
         title: "Средняя на Р",
         text: "Три дроворуба на трех дворах дрова рубят",
         difficulty: "средняя",
-        duration: 180,
+        duration: 25,
         tips: [
             "Разбейте на части: 'три дроворуба' + 'на трех дворах' + 'дрова рубят'",
             "Отработайте каждую часть отдельно",
@@ -121,7 +123,7 @@ const tongueTwisters = [
         title: "Про Карла и Клару",
         text: "Карл у Клары украл кораллы, а Клара у Карла украла кларнет",
         difficulty: "средняя",
-        duration: 180,
+        duration: 30,
         tips: [
             "Разбейте на части",
             "Тренируйте каждую часть отдельно",
@@ -132,7 +134,7 @@ const tongueTwisters = [
         title: "Про тигра",
         text: "Тигры рычат: 'Р-р-р', тигрята рычат: 'р-р-р'",
         difficulty: "легкая",
-        duration: 120,
+        duration: 20,
         tips: [
             "Начните с рычания",
             "Добавьте слова постепенно",
@@ -143,7 +145,7 @@ const tongueTwisters = [
         title: "Сложная на Р",
         text: "На горе Арарат рвала Варвара виноград",
         difficulty: "сложная",
-        duration: 240,
+        duration: 30,
         tips: [
             "Отрабатывайте каждое слово с 'Р' отдельно",
             "Соединяйте слова попарно",
@@ -154,7 +156,7 @@ const tongueTwisters = [
         title: "Про ворону",
         text: "Проворонила ворона вороненка",
         difficulty: "средняя",
-        duration: 180,
+        duration: 25,
         tips: [
             "Выделяйте каждый звук 'Р'",
             "Следите за ритмом",
@@ -182,6 +184,13 @@ let sessionState = {
 // Текущее упражнение
 let currentExerciseIndex = 0;
 let timerInterval = null;
+
+// Добавляем переменную для общего таймера тренировки
+let totalWorkoutTimer = null;
+let totalWorkoutTime = 0;
+
+// Добавляем переменные для отслеживания состояния тренировки скороговорок
+let isWorkoutStarted = false;
 
 // Функция форматирования времени
 function formatTime(seconds) {
@@ -213,24 +222,27 @@ function createExerciseCard(exercise) {
 }
 
 // Создание карточки скороговорки
-function createTongueTwisterCard(twister, index) {
+function createTongueTwisterCard(twister) {
     const card = document.createElement('div');
     card.className = 'tongue-twister-card';
     card.innerHTML = `
-        <h3>${twister.title}</h3>
-        <span class="difficulty ${twister.difficulty}">${twister.difficulty}</span>
-        <p class="preview-text">${twister.text}</p>
+        <div class="card-content">
+            <h3>${twister.title}</h3>
+            <span class="difficulty ${twister.difficulty}">${twister.difficulty}</span>
+            <p class="preview-text">${twister.text}</p>
+        </div>
     `;
-
+    
+    // Добавляем обработчик клика на карточку
     card.addEventListener('click', () => {
-        showTongueTwisterDetail(twister, index);
+        showTongueTwisterDetail(twister);
     });
-
+    
     return card;
 }
 
 // Показ детальной информации о скороговорке
-function showTongueTwisterDetail(twister, currentIndex) {
+function showTongueTwisterDetail(twister) {
     const detailScreen = document.createElement('div');
     detailScreen.className = 'tongue-twister-detail';
     detailScreen.innerHTML = `
@@ -239,8 +251,10 @@ function showTongueTwisterDetail(twister, currentIndex) {
             <span class="difficulty ${twister.difficulty}">${twister.difficulty}</span>
             <p class="main-text">${twister.text}</p>
             <div class="timer-container">
+                <button class="nav-button prev">←</button>
                 <div class="timer-display">${formatTime(twister.duration)}</div>
-                <button class="timer-button">Начать тренировку</button>
+                <button class="nav-button next">→</button>
+                <button class="start-workout-button">Начать тренировку</button>
             </div>
             <div class="tips-container">
                 <h4>Советы:</h4>
@@ -248,56 +262,78 @@ function showTongueTwisterDetail(twister, currentIndex) {
                     ${twister.tips.map(tip => `<li>${tip}</li>`).join('')}
                 </ul>
             </div>
-            <button class="close-button">Закрыть</button>
-            <div class="navigation-buttons">
-                <button class="nav-button prev-button">←</button>
-                <button class="nav-button next-button">→</button>
-            </div>
+            <button class="close-detail">×</button>
         </div>
+        <div class="total-workout-timer">Общее время: ${formatTime(totalWorkoutTime)}</div>
     `;
 
-    const timerButton = detailScreen.querySelector('.timer-button');
+    const timerButton = detailScreen.querySelector('.start-workout-button');
     const timerDisplay = detailScreen.querySelector('.timer-display');
+    const mainText = detailScreen.querySelector('.main-text');
     let detailTimerInterval = null;
     let timeLeft = twister.duration;
     let isPaused = false;
 
+    // Находим индекс текущей скороговорки
+    const currentIndex = tongueTwisters.findIndex(t => t.title === twister.title);
+
+    // Функция для перехода к следующей скороговорке
+    function goToNextTwister() {
+        if (detailTimerInterval) {
+            clearInterval(detailTimerInterval);
+        }
+        const nextIndex = currentIndex === tongueTwisters.length - 1 ? 0 : currentIndex + 1;
+        detailScreen.remove();
+        showTongueTwisterDetail(tongueTwisters[nextIndex]);
+        
+        // Если тренировка уже начата, автоматически запускаем следующую скороговорку
+        if (isWorkoutStarted) {
+            const nextDetailScreen = document.querySelector('.tongue-twister-detail');
+            if (nextDetailScreen) {
+                const nextStartButton = nextDetailScreen.querySelector('.start-workout-button');
+                if (nextStartButton) {
+                    nextStartButton.click();
+                }
+            }
+        }
+    }
+
     // Обработчики для кнопок навигации
-    const prevButton = detailScreen.querySelector('.prev-button');
-    const nextButton = detailScreen.querySelector('.next-button');
+    const prevButton = detailScreen.querySelector('.nav-button.prev');
+    const nextButton = detailScreen.querySelector('.nav-button.next');
 
     prevButton.addEventListener('click', () => {
         if (detailTimerInterval) {
             clearInterval(detailTimerInterval);
         }
+        const prevIndex = currentIndex === 0 ? tongueTwisters.length - 1 : currentIndex - 1;
         detailScreen.remove();
-        const newIndex = currentIndex === 0 ? tongueTwisters.length - 1 : currentIndex - 1;
-        showTongueTwisterDetail(tongueTwisters[newIndex], newIndex);
+        showTongueTwisterDetail(tongueTwisters[prevIndex]);
     });
 
-    nextButton.addEventListener('click', () => {
-        if (detailTimerInterval) {
-            clearInterval(detailTimerInterval);
-        }
-        detailScreen.remove();
-        const newIndex = currentIndex === tongueTwisters.length - 1 ? 0 : currentIndex + 1;
-        showTongueTwisterDetail(tongueTwisters[newIndex], newIndex);
-    });
+    nextButton.addEventListener('click', goToNextTwister);
 
+    // Обработчик для кнопки "Начать тренировку"
     timerButton.addEventListener('click', () => {
         if (isPaused) {
             // Продолжаем с того же времени
             isPaused = false;
             timerButton.textContent = 'Пауза';
+            mainText.classList.add('animate');
             detailTimerInterval = setInterval(() => {
                 timeLeft--;
                 timerDisplay.textContent = formatTime(timeLeft);
                 
+                // Усиливаем анимацию когда остается мало времени
+                if (timeLeft <= 20) {
+                    mainText.classList.remove('animate');
+                    mainText.classList.add('animate-intense');
+                }
+                
                 if (timeLeft <= 0) {
                     clearInterval(detailTimerInterval);
                     detailTimerInterval = null;
-                    timerButton.textContent = 'Начать заново';
-                    timeLeft = twister.duration;
+                    goToNextTwister();
                 }
             }, 1000);
         } else if (detailTimerInterval) {
@@ -306,31 +342,67 @@ function showTongueTwisterDetail(twister, currentIndex) {
             clearInterval(detailTimerInterval);
             detailTimerInterval = null;
             timerButton.textContent = 'Продолжить';
+            mainText.classList.remove('animate', 'animate-intense');
         } else {
             // Начало
             isPaused = false;
             timeLeft = twister.duration;
             timerButton.textContent = 'Пауза';
+            mainText.classList.add('animate');
+            
+            // Запускаем общий таймер тренировки только при первом старте
+            if (!isWorkoutStarted) {
+                isWorkoutStarted = true;
+                if (!totalWorkoutTimer) {
+                    totalWorkoutTimer = setInterval(() => {
+                        totalWorkoutTime++;
+                        document.querySelectorAll('.total-workout-timer').forEach(timer => {
+                            timer.textContent = `Общее время: ${formatTime(totalWorkoutTime)}`;
+                        });
+                    }, 1000);
+                }
+            }
+            
             detailTimerInterval = setInterval(() => {
                 timeLeft--;
                 timerDisplay.textContent = formatTime(timeLeft);
                 
+                // Усиливаем анимацию когда остается мало времени
+                if (timeLeft <= 20) {
+                    mainText.classList.remove('animate');
+                    mainText.classList.add('animate-intense');
+                }
+                
                 if (timeLeft <= 0) {
                     clearInterval(detailTimerInterval);
                     detailTimerInterval = null;
-                    timerButton.textContent = 'Начать заново';
-                    timeLeft = twister.duration;
+                    goToNextTwister();
                 }
             }, 1000);
         }
     });
 
-    detailScreen.querySelector('.close-button').addEventListener('click', () => {
+    // Обновляем обработчик для кнопки закрытия
+    detailScreen.querySelector('.close-detail').addEventListener('click', () => {
         if (detailTimerInterval) {
             clearInterval(detailTimerInterval);
         }
+        if (totalWorkoutTimer) {
+            clearInterval(totalWorkoutTimer);
+            totalWorkoutTimer = null;
+        }
+        totalWorkoutTime = 0;
+        isWorkoutStarted = false;
         detailScreen.remove();
     });
+
+    // Обновляем общий таймер на новом экране
+    if (totalWorkoutTimer) {
+        const totalTimerDisplay = detailScreen.querySelector('.total-workout-timer');
+        if (totalTimerDisplay) {
+            totalTimerDisplay.textContent = `Общее время: ${formatTime(totalWorkoutTime)}`;
+        }
+    }
 
     document.body.appendChild(detailScreen);
 }
@@ -375,6 +447,7 @@ function createWorkoutScreen() {
                     <button class="end-workout">Закончить тренировку</button>
                 </div>
             </div>
+            <button class="close-detail">×</button>
         </div>
     `;
 
@@ -382,6 +455,7 @@ function createWorkoutScreen() {
     const skipButton = workoutScreen.querySelector('.skip-exercise');
     const pauseButton = workoutScreen.querySelector('.pause-workout');
     const endButton = workoutScreen.querySelector('.end-workout');
+    const closeButton = workoutScreen.querySelector('.close-detail');
 
     skipButton.addEventListener('click', () => {
         if (sessionState.currentExerciseIndex < exercises.length - 1) {
@@ -421,12 +495,25 @@ function createWorkoutScreen() {
         }
     });
 
+    // Добавляем обработчик для кнопки закрытия
+    closeButton.addEventListener('click', () => {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        sessionState.isActive = false;
+        showScreen('exercisesScreen');
+        workoutScreen.remove();
+    });
+
     return workoutScreen;
 }
 
 // Функция для показа модального окна поздравления
-function showCongratulations() {
+function showCongratulations(message = "Поздравляем! Вы успешно завершили упражнение!") {
     const modal = document.querySelector('.congratulations-modal');
+    const messageElement = modal.querySelector('.congratulations-message');
+    messageElement.textContent = message;
     modal.classList.add('active');
 }
 
@@ -498,7 +585,7 @@ function updateWorkoutDisplay() {
     workoutScreen.querySelector('.exercise-counter').textContent = 
         `Упражнение ${sessionState.currentExerciseIndex + 1}/${exercises.length}`;
     workoutScreen.querySelector('.set-counter').textContent = 
-        `Подход ${sessionState.currentSet}/${exercise.sets}`;
+        `Подход ${(sessionState.currentSet || 0) + 1}/${exercise.sets}`;
     
     workoutScreen.querySelector('.exercise-title').textContent = exercise.title;
     workoutScreen.querySelector('.exercise-description').textContent = exercise.description;
@@ -566,11 +653,26 @@ function startNextExerciseOrSet() {
 
 // Функция завершения тренировочной сессии
 function endWorkoutSession() {
-    if (timerInterval) clearInterval(timerInterval);
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    
     sessionState.isActive = false;
-    showScreen('mainScreen');
-    const workoutScreen = document.getElementById('workoutScreen');
-    if (workoutScreen) workoutScreen.remove();
+    
+    // Показываем модальное окно с поздравлением
+    showCongratulations("Поздравляем! Еще на один день ближе к крррасивой речи!");
+    
+    // После закрытия модального окна возвращаемся на главный экран
+    const continueButton = document.getElementById('continueButton');
+    continueButton.onclick = () => {
+        hideCongratulations();
+        showScreen('mainScreen');
+        const workoutScreen = document.getElementById('workoutScreen');
+        if (workoutScreen) {
+            workoutScreen.remove();
+        }
+    };
 }
 
 // Обновляем инициализацию
@@ -589,8 +691,8 @@ function init() {
             } else if (section === 'tongueTwisters') {
                 const twistersList = document.querySelector('.tongue-twisters__list');
                 twistersList.innerHTML = '';
-                tongueTwisters.forEach((twister, index) => {
-                    twistersList.appendChild(createTongueTwisterCard(twister, index));
+                tongueTwisters.forEach(twister => {
+                    twistersList.appendChild(createTongueTwisterCard(twister));
                 });
                 showScreen('tongueTwistersScreen');
             }
@@ -621,15 +723,15 @@ function init() {
     const continueButton = document.getElementById('continueButton');
     continueButton.addEventListener('click', () => {
         hideCongratulations();
-        if (currentSet < exercises[currentExerciseIndex].sets) {
-            currentSet++;
-            startTimer(exercises[currentExerciseIndex].duration);
+        if (sessionState.currentSet < exercises[sessionState.currentExerciseIndex].sets) {
+            sessionState.currentSet++;
+            startTimer(exercises[sessionState.currentExerciseIndex].duration);
         } else {
-            currentExerciseIndex++;
-            currentSet = 1;
-            if (currentExerciseIndex < exercises.length) {
-                updateWorkoutDisplay(exercises[currentExerciseIndex]);
-                startTimer(exercises[currentExerciseIndex].duration);
+            sessionState.currentExerciseIndex++;
+            sessionState.currentSet = 1;
+            if (sessionState.currentExerciseIndex < exercises.length) {
+                updateWorkoutDisplay();
+                startTimer(exercises[sessionState.currentExerciseIndex].duration);
             } else {
                 showScreen('exercisesScreen');
             }

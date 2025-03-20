@@ -342,58 +342,63 @@ body::before {
 .tongue-twister-card {
     background: rgba(51, 51, 51, 0.8);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    box-shadow: var(--shadow-gold);
-    border-radius: 8px;
+    border: 2px solid var(--color-gold);
+    border-radius: 15px;
     padding: 1.5rem;
+    margin-bottom: 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-gold);
 }
 
 .tongue-twister-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
+    border-color: var(--color-orange);
 }
 
-.difficulty {
-    align-self: flex-start;
-    padding: 0.4rem 1rem;
+.tongue-twister-card h3 {
+    color: var(--color-gold);
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+}
+
+.tongue-twister-card .preview-text {
+    color: var(--color-white);
+    margin: 1rem 0 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.tongue-twister-card .difficulty {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.3rem 0.8rem;
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 500;
-    z-index: 1;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    text-transform: capitalize;
 }
 
-.difficulty.легкая {
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: var(--color-white);
+.tongue-twister-card .difficulty.легкая {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
     border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
-.difficulty.средняя {
-    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
-    color: var(--color-white);
+.tongue-twister-card .difficulty.средняя {
+    background: rgba(255, 152, 0, 0.2);
+    color: #FF9800;
     border: 1px solid rgba(255, 152, 0, 0.3);
 }
 
-.difficulty.сложная {
-    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-    color: var(--color-white);
+.tongue-twister-card .difficulty.сложная {
+    background: rgba(244, 67, 54, 0.2);
+    color: #F44336;
     border: 1px solid rgba(244, 67, 54, 0.3);
-}
-
-.preview-text {
-    margin-top: 0.5rem;
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: var(--color-white);
 }
 
 .tongue-twister-detail {
@@ -441,6 +446,27 @@ body::before {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     border: 1px solid rgba(212, 175, 55, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.main-text.animate {
+    animation: textShake 0.5s ease-in-out infinite;
+}
+
+@keyframes textShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-1px); }
+    75% { transform: translateX(1px); }
+}
+
+.main-text.animate-intense {
+    animation: textShakeIntense 0.5s ease-in-out infinite;
+}
+
+@keyframes textShakeIntense {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
 }
 
 .tips-container {
@@ -476,32 +502,146 @@ body::before {
     left: 0;
 }
 
-.close-detail {
+.tongue-twister-detail .close-detail {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: -25px;
+    right: -25px;
     background: var(--color-gray);
-    border: 1px solid var(--color-gold);
+    border: 2px solid var(--color-gold);
     color: var(--color-gold);
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     cursor: pointer;
-    padding: 0.5rem 1rem;
+    padding: 0.8rem;
     line-height: 1;
     z-index: 2;
     transition: all 0.3s ease;
-    border-radius: 8px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
+    box-shadow: var(--shadow-gold);
+    transform-origin: center;
 }
 
-.close-detail:hover {
-    background: var(--color-gold);
+.tongue-twister-detail .close-detail:hover {
+    background: var(--gradient-gold);
     color: var(--color-gray);
-    transform: rotate(90deg);
-    box-shadow: var(--shadow-gold);
+    transform: rotate(180deg) scale(1.1);
+    box-shadow: var(--shadow-hover);
+}
+
+.tongue-twister-detail .close-detail:active {
+    transform: rotate(180deg) scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .tongue-twister-detail .close-detail {
+        top: -20px;
+        right: -20px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        padding: 0.6rem;
+    }
+}
+
+.tongue-twister-detail .timer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.tongue-twister-detail .timer-display {
+    font-size: 4rem;
+    font-weight: bold;
+    color: var(--color-gold);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    margin-bottom: 1rem;
+}
+
+.tongue-twister-detail .start-workout-button {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    background: var(--color-gold);
+    color: var(--color-dark);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.tongue-twister-detail .start-workout-button:hover {
+    background: var(--color-orange);
+    transform: translateY(-2px);
+}
+
+.tongue-twister-detail .nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-gold);
+    border: none;
+    color: var(--color-dark);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.tongue-twister-detail .nav-button:hover {
+    background: var(--color-orange);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.tongue-twister-detail .nav-button.prev {
+    left: -20px;
+}
+
+.tongue-twister-detail .nav-button.next {
+    right: -20px;
+}
+
+@media (max-width: 768px) {
+    .tongue-twister-detail .close-detail {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        padding: 0.6rem;
+    }
+
+    .tongue-twister-detail .start-workout-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        min-width: 180px;
+    }
+
+    .tongue-twister-detail .nav-button {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2rem;
+    }
+
+    .tongue-twister-detail .nav-button.prev {
+        left: -15px;
+    }
+
+    .tongue-twister-detail .nav-button.next {
+        right: -15px;
+    }
 }
 
 .navigation-buttons {
@@ -566,13 +706,6 @@ body::before {
         padding: 3rem 1.5rem 1.5rem;
     }
 
-    .close-detail {
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 35px;
-        height: 35px;
-    }
-
     .difficulty {
         padding: 0.3rem 0.8rem;
         font-size: 0.8rem;
@@ -586,7 +719,7 @@ body::before {
     .start-workout-button {
         padding: 0.8rem 1.5rem;
         font-size: 1rem;
-        min-width: 150px;
+        min-width: 180px;
     }
 
     .nav-button {
@@ -604,12 +737,60 @@ body::before {
 }
 
 .workout-container {
-    background: rgba(51, 51, 51, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    position: relative;
+    background: rgba(51, 51, 51, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 800px;
+    width: 90%;
+    margin: 20px auto;
     box-shadow: var(--shadow-gold);
-    border-radius: 10px;
-    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.workout-container .close-detail {
+    position: absolute;
+    top: -25px;
+    right: -25px;
+    background: var(--color-gray);
+    border: 2px solid var(--color-gold);
+    color: var(--color-gold);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.8rem;
+    line-height: 1;
+    z-index: 2;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    box-shadow: var(--shadow-gold);
+    transform-origin: center;
+}
+
+.workout-container .close-detail:hover {
+    background: var(--gradient-gold);
+    color: var(--color-gray);
+    transform: rotate(180deg) scale(1.1);
+    box-shadow: var(--shadow-hover);
+}
+
+.workout-container .close-detail:active {
+    transform: rotate(180deg) scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .workout-container .close-detail {
+        top: -20px;
+        right: -20px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        padding: 0.6rem;
+    }
 }
 
 .workout-header {
@@ -832,9 +1013,9 @@ body::before {
 }
 
 .start-workout-button {
-    background: var(--gradient-gold);
-    border: none;
-    color: var(--color-gray);
+    background: rgba(51, 51, 51, 0.9);
+    border: 2px solid var(--color-gold);
+    color: var(--color-gold);
     padding: 1rem 2rem;
     border-radius: 8px;
     cursor: pointer;
@@ -846,15 +1027,17 @@ body::before {
     z-index: 1;
     min-width: 200px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    box-shadow: var(--shadow-gold);
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    margin-top: 2rem;
 }
 
 .start-workout-button:hover {
+    background: var(--gradient-gold);
+    color: var(--color-gray);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
-    background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%);
+    box-shadow: var(--shadow-hover);
 }
 
 .start-workout-button::before {
@@ -864,7 +1047,7 @@ body::before {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
     transition: 0.5s;
     z-index: -1;
 }
@@ -875,7 +1058,7 @@ body::before {
 
 .start-workout-button:active {
     transform: translateY(1px);
-    box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+    box-shadow: var(--shadow-gold);
 }
 
 /* Адаптивность для мобильных устройств */
@@ -921,6 +1104,19 @@ body::before {
         flex-direction: column;
         gap: 0.3rem;
     }
+
+    .close-detail {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        padding: 0.6rem;
+    }
+
+    .start-workout-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        min-width: 180px;
+    }
 }
 
 .exercises__header {
@@ -947,6 +1143,8 @@ body::before {
     display: flex;
     gap: 1rem;
     align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
 }
 
 .exercises__list {
@@ -970,6 +1168,7 @@ body::before {
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 1px;
+    margin: 0;
 }
 
 .back-button {
@@ -1007,6 +1206,7 @@ body::before {
     .exercises__controls {
         flex-direction: column;
         width: 100%;
+        gap: 1rem;
     }
 
     .back-button, .start-workout-button {
@@ -1175,5 +1375,29 @@ body::before {
 
     .info-block {
         padding: 1.5rem;
+    }
+}
+
+.total-workout-timer {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(51, 51, 51, 0.9);
+    border: 2px solid var(--color-gold);
+    color: var(--color-gold);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-gold);
+    z-index: 1001;
+}
+
+@media (max-width: 768px) {
+    .total-workout-timer {
+        bottom: 10px;
+        left: 10px;
+        padding: 8px 15px;
+        font-size: 1rem;
     }
 } 
